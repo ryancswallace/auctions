@@ -11,7 +11,6 @@ class rwjlbb:
         self.id = id
         self.value = value
         self.budget = budget
-        print 'id, value', self.id, self.value
 
     def initial_bid(self, reserve):
         return self.value / 2
@@ -51,9 +50,17 @@ class rwjlbb:
         returns a list of utilities per slot.
         """
         info = self.slot_info(t, history, reserve)
-        pos_effects = [0.75 ** j for j in range(0, len(info))]
+        # pos_effects = [history.round(t-1).clicks[0] * (0.75 ** j) for j in range(0, len(info))]
+        pos_effects = history.round(t-1).clicks
+        pos_effects = pos_effects + [0] * (len(info) - len(pos_effects))
+
         prices = [low for slot, low, high in info] + [max(0, reserve)]
         utilities = [pos * (self.value - t) for pos, t in zip(pos_effects, prices)]   
+
+        # print 'info', info
+        # print 'prices', prices
+        # print 'utilities', utilities
+        # print 'util params', [(pos, self.value, t) for pos, t in zip(pos_effects, prices)]  
 
         return utilities
 
@@ -83,8 +90,8 @@ class rwjlbb:
         (slot, min_bid, max_bid) = self.target_slot(t, history, reserve)
 
         info = self.slot_info(t, history, reserve)
-        prices = [low for slot, low, high in info] + [max(0, reserve)]
-        t_j = prices[slot]
+        prices = [low for _, low, _ in info]
+        t_j = prices[slot] if slot < len(prices) else max(0, reserve)
 
         # not expecting to win
         if t_j > self.value:
@@ -93,8 +100,9 @@ class rwjlbb:
         # trying to win
         else:
             # not going for top slot
-            if slot > 1:
-                pos_j, next_pos = 0.75 ** slot, 0.75 ** (slot - 1)
+            if slot > 0:
+                # pos_j, next_pos = 0.75 ** slot, 0.75 ** (slot - 1)
+                pos_j, next_pos = history.round(t-1).clicks[slot], history.round(t-1).clicks[slot - 1]
                 bid = self.value - (pos_j / float(next_pos)) * (self.value - t_j) 
 
             # going for top slot
