@@ -5,12 +5,13 @@ import sys
 from gsp import GSP
 from util import argmax_index
 
-class BBAgent:
+class rwjlbb:
     """Balanced bidding agent"""
     def __init__(self, id, value, budget):
         self.id = id
         self.value = value
         self.budget = budget
+        print 'id, value', self.id, self.value
 
     def initial_bid(self, reserve):
         return self.value / 2
@@ -49,10 +50,12 @@ class BBAgent:
 
         returns a list of utilities per slot.
         """
-        # TODO: Fill this in
-        utilities = []   # Change this
+        info = self.slot_info(t, history, reserve)
+        pos_effects = [0.75 ** j for j in range(0, len(info))]
+        # TODO: Question: add 1 to bid to guarantee spot?
+        prices = [low + 1 for slot, low, high in info] + [max(0, reserve)]
+        utilities = [pos * (self.value - t) for pos, t in zip(pos_effects, prices)]   
 
-        
         return utilities
 
     def target_slot(self, t, history, reserve):
@@ -78,12 +81,28 @@ class BBAgent:
         # (p_x is the price/click in slot x)
         # If s*_j is the top slot, bid the value v_j
 
-        prev_round = history.round(t-1)
         (slot, min_bid, max_bid) = self.target_slot(t, history, reserve)
 
-        # TODO: Fill this in.
-        bid = 0  # change this
-        
+        # TODO: Question: add 1 to bid to guarantee spot?
+        info = self.slot_info(t, history, reserve)
+        prices = [low + 1 for slot, low, high in info] + [max(0, reserve)]
+        t_j = prices[slot]
+
+        # not expecting to win
+        if t_j > self.value:
+            bid = self.value
+
+        # trying to win
+        else:
+            # not going for top slot
+            if slot > 1:
+                pos_j, next_pos = 0.75 ** slot, 0.75 ** (slot - 1)
+                bid = self.value - (pos_j / float(next_pos)) * (self.value - t_j) 
+
+            # going for top slot
+            else:
+                bid = self.value
+
         return bid
 
     def __repr__(self):
