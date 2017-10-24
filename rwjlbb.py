@@ -52,8 +52,7 @@ class rwjlbb:
         """
         info = self.slot_info(t, history, reserve)
         pos_effects = [0.75 ** j for j in range(0, len(info))]
-        # TODO: Question: add 1 to bid to guarantee spot?
-        prices = [low + 1 for slot, low, high in info] + [max(0, reserve)]
+        prices = [low for slot, low, high in info] + [max(0, reserve)]
         utilities = [pos * (self.value - t) for pos, t in zip(pos_effects, prices)]   
 
         return utilities
@@ -83,9 +82,8 @@ class rwjlbb:
 
         (slot, min_bid, max_bid) = self.target_slot(t, history, reserve)
 
-        # TODO: Question: add 1 to bid to guarantee spot?
         info = self.slot_info(t, history, reserve)
-        prices = [low + 1 for slot, low, high in info] + [max(0, reserve)]
+        prices = [low for slot, low, high in info] + [max(0, reserve)]
         t_j = prices[slot]
 
         # not expecting to win
