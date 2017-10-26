@@ -82,20 +82,6 @@ class rwjlbudget_cos:
         # (p_x is the price/click in slot x)
         # If s*_j is the top slot, bid the value v_j
 
-        # remaining_budget = self.budget - history.agents_spent[self.id]
-        # rounds_remaining = self.N_ROUNDS - t
-        # pos_1 = 30 * math.cos(math.pi * t / 24) + 50
-
-        # top_slot_clicks = remaining_budget * pos_1 / (50 * (rounds_remaining + 1))
-        # bid = top_slot_clicks
-        # if self.id == 1:
-        #     print "ROUND", t
-        #     print 'factor', pos_1 / (50 * (rounds_remaining + 1))
-        #     print 'remaining budget', remaining_budget
-        #     print
-
-        ########
-
         memory_length = 3
 
         if t > 1:
